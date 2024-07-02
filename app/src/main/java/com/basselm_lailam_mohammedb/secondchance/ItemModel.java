@@ -1,13 +1,21 @@
 package com.basselm_lailam_mohammedb.secondchance;
 
 public class ItemModel {
-    private String name, imgUrl;
+    private String id, name;
     private double price;
 
-    public ItemModel(String name, double price, String imgUrl) {
+    public ItemModel(String id, String name, double price) {
+        this.id = id;
         this.name = name;
         this.price = price;
-        this.imgUrl = imgUrl;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -16,14 +24,6 @@ public class ItemModel {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getImgUrl() {
-        return imgUrl;
-    }
-
-    public void setImgUrl(String imgUrl) {
-        this.imgUrl = imgUrl;
     }
 
     public double getPrice() {

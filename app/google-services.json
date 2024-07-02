@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "552028627109",
+    "project_id": "secondchance-75ee1",
+    "storage_bucket": "secondchance-75ee1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:552028627109:android:90cbecf2438395adad2d4c",
+        "android_client_info": {
+          "package_name": "com.basselm_lailam_mohammedb.secondchance"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA1txt0HAt_ZpTAkqZvMDkJFrIwtoZpu-I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
