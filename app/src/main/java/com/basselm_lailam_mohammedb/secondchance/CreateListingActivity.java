@@ -1,6 +1,8 @@
 package com.basselm_lailam_mohammedb.secondchance;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
@@ -10,6 +12,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
@@ -22,8 +25,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentReference;
@@ -40,6 +46,8 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
 
     Button btn_create, btn_gallery, btn_camera;
     TextInputEditText et_name, et_desc, et_phone, et_price;
+    LinearLayout container;
+    ProgressBar progressbar;
     Uri imgUri;
     TextView tv_upload_photo;
     ActivityResultLauncher<PickVisualMediaRequest> galleryLauncher;
@@ -62,6 +70,8 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
         et_phone = findViewById(R.id.et_phone);
         et_price = findViewById(R.id.et_price);
         tv_upload_photo = findViewById(R.id.tv_upload_photo);
+        container = findViewById(R.id.container);
+        progressbar = findViewById(R.id.progressbar);
 
         btn_create.setOnClickListener(this);
         btn_camera.setOnClickListener(this);
@@ -88,6 +98,15 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
         et_price.setOnFocusChangeListener(this);
         et_phone.setOnFocusChangeListener(this);
         et_desc.setOnFocusChangeListener(this);
+
+        String imageUriString = getIntent().getStringExtra("imageUriString");
+        if (imageUriString != null) {
+            Log.d("mlog", "detected");
+            Uri uri = Uri.parse(imageUriString);
+            Log.d("mlog", uri.getPath());
+            setImgUri(uri);
+        }
+
 
         handleCreateButton();
         setupGalleryLauncher();
@@ -117,6 +136,9 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
     }
 
     public void createListing() {
+
+        loadingStateUIFeedback();
+
         String name = et_name.getText().toString().trim();
         String desc = et_desc.getText().toString().trim();
         String phone = et_phone.getText().toString().trim();
@@ -153,6 +175,11 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
                 });
     }
 
+    private void loadingStateUIFeedback() {
+        container.setAlpha(0.25F);
+        progressbar.setVisibility(View.VISIBLE);
+    }
+
 
     @Override
     public void onClick(View view) {
@@ -161,12 +188,17 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
         }
 
         if (view.getId() == R.id.btn_camera) {
-
+            launchCamera();
         }
 
         if (view.getId() == R.id.btn_gallery) {
             launchGallery();
         }
+    }
+
+    public void launchCamera() {
+        Intent intent = new Intent(this, CameraActivity.class);
+        startActivity(intent);
     }
 
     public void handleCreateButton() {
@@ -202,6 +234,41 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
         tv_upload_photo.setText("Photo uploaded!");
         btn_gallery.setVisibility(View.INVISIBLE);
         btn_camera.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        String name = et_name.getText().toString().trim();
+        String phone = et_phone.getText().toString().trim();
+        String desc = et_desc.getText().toString().trim();
+        String price = et_price.getText().toString().trim();
+
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("name", name);
+        editor.putString("phone", phone);
+        editor.putString("desc", desc);
+        editor.putString("price", price);
+        editor.apply();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        SharedPreferences sharedPrefs = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+
+        String name = sharedPrefs.getString("name", "");
+        String phone = sharedPrefs.getString("phone", "");
+        String desc = sharedPrefs.getString("desc", "");
+        String price = sharedPrefs.getString("price", "");
+
+        et_name.setText(name);
+        et_phone.setText(phone);
+        et_desc.setText(desc);
+        et_price.setText(price);
     }
 }
 
