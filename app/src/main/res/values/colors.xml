@@ -4,8 +4,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="purple">#7c08cc</color>
     <color name="desaturated_purple">#6b656f</color>
-    <color name="disabledTextColor">#949494</color>
-    <color name="enabledTextColor">#ffffff</color>
-    <color name="enabledColor">#7c08cc</color>
-    <color name="disabledColor">#666666</color>
+    <color name="green">#4BB543</color>
 </resources>

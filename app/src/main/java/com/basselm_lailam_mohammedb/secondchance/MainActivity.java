@@ -60,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        Log.d("mlog", document.getId() + " => " + document.getData());
                         String id = document.getId();
                         String name = document.getString("name");
                         Double price = document.getDouble("price");

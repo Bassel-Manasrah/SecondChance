@@ -1,7 +1,7 @@
 package com.basselm_lailam_mohammedb.secondchance;
 
 public class ItemModel {
-    private String id, name;
+    private String id, name, desc, phone, uri;
     private double price;
 
     public ItemModel(String id, String name, double price) {
