@@ -3,4 +3,8 @@
     <item
         android:id="@+id/option_create_listing"
         android:title="create listing" />
+
+    <item
+        android:id="@+id/option_settings"
+        android:title="settings" />
 </menu>

@@ -94,6 +94,12 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
+        if(id == R.id.option_settings) {
+            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
 
     }

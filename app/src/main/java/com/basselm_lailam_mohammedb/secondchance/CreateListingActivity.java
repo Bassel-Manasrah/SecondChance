@@ -57,9 +57,10 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_listing);
 
-        // change the title of the toolbar
+        // change the title of the toolbar and allow back navigation
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("Create Listing");
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
         btn_create = findViewById(R.id.btn_create);
