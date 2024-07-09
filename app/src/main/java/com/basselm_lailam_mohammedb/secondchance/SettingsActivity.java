@@ -1,5 +1,6 @@
 package com.basselm_lailam_mohammedb.secondchance;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
@@ -40,6 +41,9 @@ public class SettingsActivity extends AppCompatActivity {
         edt_min = findViewById(R.id.edt_min);
         edt_max = findViewById(R.id.edt_max);
         switch_only_with_image = findViewById(R.id.switch_only_with_image);
+
+        loadSettings();
+
 
         initEditText(edt_min, false);
         initEditText(edt_max, true);
@@ -100,7 +104,6 @@ public class SettingsActivity extends AppCompatActivity {
                 edt.getText().toString().isEmpty() ? hintColor : textColor
         );
 
-
         // Update the color of the drawable
         edt.setCompoundDrawableTintList(colorStateList);
     }
@@ -115,19 +118,32 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onPause() {
+        super.onPause();
+        Log.d("mlog", "onPause: settings");
 
-        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("settings", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        Log.d("my_log", switch_only_with_image.isChecked() ? "true" : "false");
-        Log.d("my_log", String.valueOf(getNumberFromEditable(edt_min.getEditableText())));
-        Log.d("my_log", String.valueOf(getNumberFromEditable(edt_max.getEditableText())));
+        editor.putBoolean("onlyWithImage", switch_only_with_image.isChecked());
+        editor.putInt("minPrice", getNumberFromEditable(edt_min.getEditableText()));
+        editor.putInt("maxPrice", getNumberFromEditable(edt_max.getEditableText()));
 
+        editor.apply();
+    }
 
-        editor.putBoolean("only_with_image", switch_only_with_image.isChecked());
-        editor.putInt("min_price", getNumberFromEditable(edt_min.getEditableText()));
-        editor.putInt("max_price", getNumberFromEditable(edt_max.getEditableText()));
+    private void loadSettings() {
+        SharedPreferences sharedPrefs = getSharedPreferences("settings", Context.MODE_PRIVATE);
+        int minPrice = sharedPrefs.getInt("minPrice", 0);
+        int maxPrice = sharedPrefs.getInt("maxPrice",  Integer.MAX_VALUE);
+        boolean onlyWithImage = sharedPrefs.getBoolean("onlyWithImage", false);
+
+        edt_min.setText(String.valueOf(minPrice));
+        edt_max.setText(String.valueOf(maxPrice));
+        switch_only_with_image.setChecked(onlyWithImage);
+    }
+
+    private void commitSettings() {
+
     }
 }

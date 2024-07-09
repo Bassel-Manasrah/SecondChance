@@ -60,27 +60,33 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.tv_name.setText(itemList.get(position).getName());
-        holder.tv_price.setText(String.valueOf(itemList.get(position).getPrice()));
 
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageRef = storage.getReference().child("images/" + itemList.get(position).getId());
+        ItemModel item = itemList.get(position);
 
-        storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                // Load the image using Glide
-                Glide.with(holder.itemView.getContext())
-                        .load(uri)
+        holder.tv_name.setText(item.getName());
+        holder.tv_price.setText(String.valueOf(item.getPrice()));
+        Glide.with(holder.itemView.getContext())
+                        .load(item.getImgUrl().isEmpty() ? R.drawable.default_product_image : item.getImgUrl())
                         .into(holder.iv_img);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                // Handle any errors
-                Log.d("mlog", "Failed to get download URL", exception);
-            }
-        });
+
+//        FirebaseStorage storage = FirebaseStorage.getInstance();
+//        StorageReference storageRef = storage.getReference().child("images/" + itemList.get(position).getId());
+//
+//        storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+//            @Override
+//            public void onSuccess(Uri uri) {
+//                // Load the image using Glide
+//                Glide.with(holder.itemView.getContext())
+//                        .load(uri)
+//                        .into(holder.iv_img);
+//            }
+//        }).addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull Exception exception) {
+//                // Handle any errors
+//                Log.d("mlog", "Failed to get download URL", exception);
+//            }
+//        });
     }
 
     @Override

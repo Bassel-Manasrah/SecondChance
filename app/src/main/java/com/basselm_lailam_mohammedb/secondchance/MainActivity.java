@@ -1,6 +1,8 @@
 package com.basselm_lailam_mohammedb.secondchance;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -36,11 +38,19 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<ItemModel> itemList;
     private ImageView iv;
+    private int setting_minPrice, setting_maxPrice;
+    private boolean setting_onlyWithImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // load settings
+        loadSettings();
+        Log.d("mlog", "minPrice: " + setting_minPrice);
+        Log.d("mlog", "maxPrice: " + setting_maxPrice);
+        Log.d("mlog", "onlyWithImage: " + setting_onlyWithImage);
 
         // change the title of the toolbar
         if (getSupportActionBar() != null) {
@@ -60,12 +70,15 @@ public class MainActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        String id = document.getId();
-                        String name = document.getString("name");
-                        Double price = document.getDouble("price");
-                        FirebaseStorage storage = FirebaseStorage.getInstance();
-                        ItemModel item = new ItemModel(id, name, price);
-                        itemList.add(item);
+//                        String id = document.getId();
+//                        String name = document.getString("name");
+//                        Double price = document.getDouble("price");
+//                        FirebaseStorage storage = FirebaseStorage.getInstance();
+//                        ItemModel item = new ItemModel(id, name, price);
+                        ItemModel item = firebaseDocumentToItemModel(document);
+
+                        if(isMatchingItem(item))
+                            itemList.add(item);
                     }
                     itemAdapter.notifyDataSetChanged();
                 } else {
@@ -74,6 +87,29 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private ItemModel firebaseDocumentToItemModel(QueryDocumentSnapshot document) {
+        String id = document.getId();
+        String name = document.getString("name");
+        String imgUrl = document.getString("imgUrl");
+        Double price = document.getDouble("price");
+        ItemModel item = new ItemModel(id, name, imgUrl, price);
+        return item;
+    }
+
+    private boolean isMatchingItem(ItemModel item) {
+
+        return item.getPrice() >= setting_minPrice &&
+                item.getPrice() <= setting_maxPrice &&
+                (!item.getImgUrl().isEmpty() || !setting_onlyWithImage);
+    }
+
+    private void loadSettings() {
+        SharedPreferences sharedPrefs = getSharedPreferences("settings", Context.MODE_PRIVATE);
+        setting_minPrice = sharedPrefs.getInt("minPrice", 0);
+        setting_maxPrice = sharedPrefs.getInt("maxPrice",  Integer.MAX_VALUE);
+        setting_onlyWithImage = sharedPrefs.getBoolean("onlyWithImage", false);
     }
 
     @Override

@@ -29,6 +29,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.auth.api.signin.internal.Storage;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
@@ -136,6 +137,17 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
         photoUploadedUIFeedback();
     }
 
+    private void uploadItem(Map<String, Object> item) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("items").add(item).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                Intent intent = new Intent(CreateListingActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
+
     public void createListing() {
 
         loadingStateUIFeedback();
@@ -152,28 +164,56 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
         item.put("price", price);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("items")
-                .add(item)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        String id = documentReference.getId();
-                        if(imgUri != null) {
 
-                            // upload image to firebase storage
-                            FirebaseStorage storage = FirebaseStorage.getInstance();
-                            StorageReference storageRef = storage.getReference().child("images/" + id);
-                            storageRef.putFile(imgUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                @Override
-                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                    Intent intent = new Intent(CreateListingActivity.this, MainActivity.class);
-                                    startActivity(intent);
-                                }
-                            });
+        if(imgUri != null) {
+
+            StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("images");
+            StorageReference imgRef = storageRef.child(String.valueOf(System.currentTimeMillis()));
+
+            imgRef.putFile(imgUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    imgRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            item.put("imgUrl", uri.toString());
+                            uploadItem(item);
                         }
+                    });
+                }
+            });
+        }
 
-                    }
-                });
+        else {
+            item.put("imgUrl", "");
+            uploadItem(item);
+        }
+
+
+
+//        FirebaseFirestore db = FirebaseFirestore.getInstance();
+//        db.collection("items")
+//                .add(item)
+//                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//                    @Override
+//                    public void onSuccess(DocumentReference documentReference) {
+//                        String id = documentReference.getId();
+//                        if(imgUri != null) {
+//
+//                            // upload image to firebase storage
+//                            FirebaseStorage storage = FirebaseStorage.getInstance();
+//                            StorageReference storageRef = storage.getReference().child("images/" + id);
+//                            storageRef.putFile(imgUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+//                                @Override
+//                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+//                                    Intent intent = new Intent(CreateListingActivity.this, MainActivity.class);
+//                                    startActivity(intent);
+//                                }
+//                            });
+//                        }
+//
+//                    }
+//                });
     }
 
     private void loadingStateUIFeedback() {
@@ -260,7 +300,7 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
         super.onResume();
 
         SharedPreferences sharedPrefs = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
-
+        
         String name = sharedPrefs.getString("name", "");
         String phone = sharedPrefs.getString("phone", "");
         String desc = sharedPrefs.getString("desc", "");
