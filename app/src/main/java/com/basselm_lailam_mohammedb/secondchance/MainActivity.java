@@ -2,6 +2,7 @@ package com.basselm_lailam_mohammedb.secondchance;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -46,6 +47,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+        registerReceiver(new NetworkChangeReceiver(), filter);
+
         // load settings
         loadSettings();
         Log.d("mlog", "minPrice: " + setting_minPrice);
@@ -58,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         itemList = new ArrayList<>();
-        ItemAdapter itemAdapter = new ItemAdapter(itemList);
+        ItemAdapter itemAdapter = new ItemAdapter(itemList, this);
 
         RecyclerView recyclerView = findViewById(R.id.rv_items);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));

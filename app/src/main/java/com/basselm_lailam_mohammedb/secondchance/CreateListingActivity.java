@@ -300,7 +300,7 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
         super.onResume();
 
         SharedPreferences sharedPrefs = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
-        
+
         String name = sharedPrefs.getString("name", "");
         String phone = sharedPrefs.getString("phone", "");
         String desc = sharedPrefs.getString("desc", "");
