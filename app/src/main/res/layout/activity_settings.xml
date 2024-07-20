@@ -41,7 +41,9 @@
             android:drawablePadding="4dp"
             android:drawableTint="?android:textColorHint"
             android:ems="10"
-            android:inputType="number" />
+            android:inputType="number"
+            android:maxLength="9"
+            />
 
         <ImageView
             android:layout_width="wrap_content"
@@ -56,12 +58,14 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:hint="+10,000"
+            android:hint="999999999"
             android:drawableStart="@drawable/currency_12"
             android:drawableTint="?android:textColorHint"
             android:drawablePadding="4dp"
             android:ems="10"
-            android:inputType="number" />
+            android:inputType="number"
+            android:maxLength="9"
+            />
     </LinearLayout>
 
     <TextView

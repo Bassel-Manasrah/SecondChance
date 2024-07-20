@@ -27,6 +27,9 @@ public class SettingsActivity extends AppCompatActivity {
     private EditText edt_max;
     private Switch switch_only_with_image;
 
+    private int setting_minPrice, setting_maxPrice;
+    private boolean setting_onlyWithImage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,69 +46,6 @@ public class SettingsActivity extends AppCompatActivity {
         switch_only_with_image = findViewById(R.id.switch_only_with_image);
 
         loadSettings();
-
-
-        initEditText(edt_min, false);
-        initEditText(edt_max, true);
-
-    }
-
-    private void initEditText(EditText edt, boolean isMax) {
-        edt.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // Do nothing
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // Do nothing
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-                // update the color of the edit text drawable
-                updateEditTextDrawableColor(edt);
-
-//                // remove non numeric characters
-//                String cleanString = editable.toString().replaceAll("[^0-9]", "");
-//                if(cleanString.isEmpty()) return;
-//
-//                int number = Integer.parseInt(cleanString);
-//                number = Math.min(number, 10000);
-                int number = getNumberFromEditable(editable);
-
-                // format the string properly
-                String formatted = NumberFormat.getNumberInstance(Locale.getDefault()).format(number);
-                if(number == 10000 && isMax)
-                    formatted = "+" + formatted;
-
-                // update the edit text
-                edt.removeTextChangedListener(this);
-                edt.setText(formatted);
-                edt.setSelection(formatted.length());
-                edt.addTextChangedListener(this);
-
-            }
-        });
-    }
-
-    private void updateEditTextDrawableColor(EditText edt) {
-
-        // Get the current hint text color
-        int hintColor = edt.getCurrentHintTextColor();
-
-        // Get the current text color
-        int textColor = edt.getCurrentTextColor();
-
-        // Create a ColorStateList from the appropriate color
-        ColorStateList colorStateList = ColorStateList.valueOf(
-                edt.getText().toString().isEmpty() ? hintColor : textColor
-        );
-
-        // Update the color of the drawable
-        edt.setCompoundDrawableTintList(colorStateList);
     }
 
     private int getNumberFromEditable(Editable editable) {
@@ -113,21 +53,25 @@ public class SettingsActivity extends AppCompatActivity {
         if(cleanString.isEmpty()) return 0;
 
         int number = Integer.parseInt(cleanString);
-        number = Math.min(number, 10000);
         return number;
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        Log.d("mlog", "onPause: settings");
 
         SharedPreferences sharedPreferences = getSharedPreferences("settings", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
+        String edt_min_string = edt_min.getText().toString();
+        String edt_max_string = edt_max.getText().toString();
+
+        int minPrice = edt_min_string.isEmpty() ? 0 : Integer.valueOf(edt_min_string);
+        int maxPrice = edt_max_string.isEmpty() ? 999999999 : Integer.valueOf(edt_max_string);
+
         editor.putBoolean("onlyWithImage", switch_only_with_image.isChecked());
-        editor.putInt("minPrice", getNumberFromEditable(edt_min.getEditableText()));
-        editor.putInt("maxPrice", getNumberFromEditable(edt_max.getEditableText()));
+        editor.putInt("minPrice", minPrice);
+        editor.putInt("maxPrice", maxPrice);
 
         editor.apply();
     }
@@ -135,7 +79,7 @@ public class SettingsActivity extends AppCompatActivity {
     private void loadSettings() {
         SharedPreferences sharedPrefs = getSharedPreferences("settings", Context.MODE_PRIVATE);
         int minPrice = sharedPrefs.getInt("minPrice", 0);
-        int maxPrice = sharedPrefs.getInt("maxPrice",  Integer.MAX_VALUE);
+        int maxPrice = sharedPrefs.getInt("maxPrice",  999999999);
         boolean onlyWithImage = sharedPrefs.getBoolean("onlyWithImage", false);
 
         edt_min.setText(String.valueOf(minPrice));
@@ -143,7 +87,4 @@ public class SettingsActivity extends AppCompatActivity {
         switch_only_with_image.setChecked(onlyWithImage);
     }
 
-    private void commitSettings() {
-
-    }
 }
