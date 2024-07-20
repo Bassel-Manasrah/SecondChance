@@ -1,10 +1,12 @@
 package com.basselm_lailam_mohammedb.secondchance;
 
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -151,14 +153,57 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
+        if(id == R.id.option_about) {
+            showAboutDialog();
+        }
+
+        if(id == R.id.option_exit) {
+            showExitDialog();
+        }
+
         return super.onOptionsItemSelected(item);
 
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
+    private void showAboutDialog() {
+        String appName = getString(R.string.app_name);
+        String appId = getPackageName();
+        String osDetails = "OS Version: " + Build.VERSION.RELEASE + "\nSDK: " + Build.VERSION.SDK_INT;
+        String submissionDate = "Submission Date: 21-07-2024";
 
-        Log.d("mlog", "onStop: ");
+        String message = "App Name: " + appName + "\n" +
+                "App ID: " + appId + "\n\n" +
+                osDetails + "\n\n" +
+                "Developed by:" + "\n" +
+                "Bassel Manasrah - 325240174" + "\n" +
+                "Mohammed Belbisi - 206634131" + "\n" +
+                "Layla Mahameed - 322799313" + "\n\n" +
+                submissionDate;
+
+        new AlertDialog.Builder(this)
+                .setTitle("About")
+                .setMessage(message)
+                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+                .show();
     }
+
+    private void showExitDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Exit Application")
+                .setMessage("Are you sure you want to exit?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Exit the app
+                        finish();
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Dismiss the dialog
+                        dialog.dismiss();
+                    }
+                })
+                .show();
+    }
+
 }
