@@ -27,9 +27,6 @@ public class SettingsActivity extends AppCompatActivity {
     private EditText edt_max;
     private Switch switch_only_with_image;
 
-    private int setting_minPrice, setting_maxPrice;
-    private boolean setting_onlyWithImage;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

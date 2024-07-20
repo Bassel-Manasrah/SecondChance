@@ -35,13 +35,7 @@
 
         <receiver android:name=".AlarmReceiver" />
         <receiver
-            android:name=".NetworkChangeReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_ACTION" />
-            </intent-filter>
-        </receiver>
+            android:name=".NetworkChangeReceiver" />
 
         <activity
             android:name=".SettingsActivity"
