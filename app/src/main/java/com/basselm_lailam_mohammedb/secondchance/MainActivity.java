@@ -48,11 +48,14 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+    // List to store items
     private ArrayList<ItemModel> itemList;
-    private ImageView iv;
+    // Variables to store settings values
     private int setting_minPrice, setting_maxPrice;
     private boolean setting_onlyWithImage;
+    // RecyclerView to display items
     private RecyclerView recyclerView;
+    // SwipeRefreshLayout for swipe to refresh functionality
     private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
@@ -60,25 +63,29 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Register process lifecycle observer
+        // Used to detect when the app is no longer in the foreground to schedule a notification
+        // in case the user did not open the app in 2 days
         ProcessLifecycleOwner.get().getLifecycle().addObserver(new AppLifecycleObserver(this));
 
+        // Register the connection status broadcast receiver
         IntentFilter filter = new IntentFilter();
         filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
         registerReceiver(new NetworkChangeReceiver(), filter);
 
-        // load settings
+        // Load settings from shared preferences
         loadSettings();
-        Log.d("mlog", "minPrice: " + setting_minPrice);
-        Log.d("mlog", "maxPrice: " + setting_maxPrice);
-        Log.d("mlog", "onlyWithImage: " + setting_onlyWithImage);
 
-        // change the title of the toolbar
+        // Change the title of the toolbar
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("Home");
         }
 
+        // Initialize the RecyclerView
         recyclerView = findViewById(R.id.rv_items);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+
+        // Enable the SwipeRefreshLayout
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -89,12 +96,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Fetch the items from Firebase
         fetchItems();
-
     }
 
+    // Method to fetch items from Firebase
     private void fetchItems() {
-
         itemList = new ArrayList<>();
         ItemAdapter itemAdapter = new ItemAdapter(itemList, this);
         recyclerView.setAdapter(itemAdapter);
@@ -107,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         ItemModel item = firebaseDocumentToItemModel(document);
 
-                        if(isMatchingItem(item))
+                        if (isMatchingItem(item))
                             itemList.add(item);
                     }
                     itemAdapter.notifyDataSetChanged();
@@ -118,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // Convert Firebase document to ItemModel object
     private ItemModel firebaseDocumentToItemModel(QueryDocumentSnapshot document) {
         String id = document.getId();
         String name = document.getString("name");
@@ -127,17 +135,18 @@ public class MainActivity extends AppCompatActivity {
         return item;
     }
 
+    // Check if the item matches the filter criteria
     private boolean isMatchingItem(ItemModel item) {
-
         return item.getPrice() >= setting_minPrice &&
                 item.getPrice() <= setting_maxPrice &&
                 (!item.getImgUrl().isEmpty() || !setting_onlyWithImage);
     }
 
+    // Load settings from shared preferences
     private void loadSettings() {
         SharedPreferences sharedPrefs = getSharedPreferences("settings", Context.MODE_PRIVATE);
         setting_minPrice = sharedPrefs.getInt("minPrice", 0);
-        setting_maxPrice = sharedPrefs.getInt("maxPrice",  Integer.MAX_VALUE);
+        setting_maxPrice = sharedPrefs.getInt("maxPrice", Integer.MAX_VALUE);
         setting_onlyWithImage = sharedPrefs.getBoolean("onlyWithImage", false);
     }
 
@@ -150,31 +159,31 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-
         int id = item.getItemId();
 
-        if(id == R.id.option_create_listing) {
+        if (id == R.id.option_create_listing) {
             Intent intent = new Intent(MainActivity.this, CreateListingActivity.class);
             startActivity(intent);
             return true;
         }
 
-        if(id == R.id.option_settings) {
+        if (id == R.id.option_settings) {
             Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
             startActivity(intent);
             return true;
         }
 
-        if(id == R.id.option_about) {
+        if (id == R.id.option_about) {
             showAboutDialog();
+            return true;
         }
 
-        if(id == R.id.option_exit) {
+        if (id == R.id.option_exit) {
             showExitDialog();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
-
     }
 
     @Override
@@ -184,6 +193,7 @@ public class MainActivity extends AppCompatActivity {
         fetchItems();
     }
 
+    // Show the About dialog
     private void showAboutDialog() {
         String appName = getString(R.string.app_name);
         String appId = getPackageName();
@@ -206,6 +216,7 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
+    // Show the Exit dialog
     private void showExitDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("Exit Application")
@@ -224,5 +235,4 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .show();
     }
-
 }

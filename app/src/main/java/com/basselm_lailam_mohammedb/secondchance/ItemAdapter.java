@@ -35,14 +35,16 @@ import java.util.ArrayList;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
-    private ArrayList<ItemModel> itemList;
-    private Context context;
+    private ArrayList<ItemModel> itemList; // List of items to display
+    private Context context; // Context to create dialogs
 
+    // Constructor to initialize the item list and context
     public ItemAdapter(ArrayList<ItemModel> itemList, Context context) {
         this.itemList = itemList;
         this.context = context;
     }
 
+    // ViewHolder class to hold references to the views for each item
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tv_name, tv_price;
         ImageView iv_img;
@@ -50,67 +52,70 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
         public ViewHolder(View view) {
             super(view);
-            tv_name = view.findViewById(R.id.tv_name);
-            tv_price = view.findViewById(R.id.tv_price);
-            iv_img = view.findViewById(R.id.iv_img);
-            btn_showInfo = view.findViewById(R.id.btn_showInfo);
+            tv_name = view.findViewById(R.id.tv_name); // Name text view
+            tv_price = view.findViewById(R.id.tv_price); // Price text view
+            iv_img = view.findViewById(R.id.iv_img); // Image view
+            btn_showInfo = view.findViewById(R.id.btn_showInfo); // Button to show more info
         }
-
     }
 
+    // Inflate the item layout and create the ViewHolder
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item, parent, false);
-
+                .inflate(R.layout.list_item, parent, false); // Inflate the item layout
         return new ViewHolder(view);
     }
 
+    // Bind data to the views in each ViewHolder
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        ItemModel item = itemList.get(position); // Get the current item
 
-        ItemModel item = itemList.get(position);
+        holder.tv_name.setText(item.getName()); // Set the item name
+        holder.tv_price.setText(String.valueOf(item.getPrice())); // Set the item price
 
-        holder.tv_name.setText(item.getName());
-        holder.tv_price.setText(String.valueOf(item.getPrice()));
+        // Load the item image using Glide, or set a default image if the URL is empty
         Glide.with(holder.itemView.getContext())
-                        .load(item.getImgUrl().isEmpty() ? R.drawable.default_product_image : item.getImgUrl())
-                        .into(holder.iv_img);
+                .load(item.getImgUrl().isEmpty() ? R.drawable.default_product_image : item.getImgUrl())
+                .into(holder.iv_img);
 
+        // Set click listener for the show info button
         holder.btn_showInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CreateAndShowPopup(item.getId());
+                CreateAndShowPopup(item.getId()); // Show popup with item details
             }
         });
-
     }
 
+    // Return the size of the item list
     @Override
     public int getItemCount() {
         return itemList.size();
     }
 
+    // Fetch item details from Firestore and show a popup
     private void CreateAndShowPopup(String itemId) {
-
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("items").document(itemId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful() && task.getResult() != null) {
                     DocumentSnapshot document = task.getResult();
-                    String desc = document.getString("desc");
-                    String phone = document.getString("phone");
-                    showPopup(desc, phone);
+                    String desc = document.getString("desc"); // Get item description
+                    String phone = document.getString("phone"); // Get item phone number
+                    showPopup(desc, phone); // Show popup with item details
                 } else {
-                    Log.w("ItemAdapter", "Error getting document.", task.getException());
+                    Log.w("ItemAdapter", "Error getting document.", task.getException()); // Log error
                 }
             }
         });
     }
 
-    private void showPopup(String description, String phone_Number ) {
+    // Show a popup with item description and phone number
+    private void showPopup(String description, String phone_Number) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("More Information");
         builder.setMessage("Description: " + description + "\nPhone Number: " + phone_Number);

@@ -18,9 +18,12 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
+        // hide the action bar
         if(getSupportActionBar() != null)
             getSupportActionBar().hide();
 
+
+        // move to the main activity after 2 seconds
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {

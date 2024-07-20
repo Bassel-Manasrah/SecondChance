@@ -44,7 +44,7 @@ import java.util.Map;
 
 public class CreateListingActivity extends AppCompatActivity implements View.OnClickListener, View.OnFocusChangeListener {
 
-
+    // UI components
     Button btn_create, btn_gallery, btn_camera;
     TextInputEditText et_name, et_desc, et_phone, et_price;
     LinearLayout container;
@@ -58,12 +58,13 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_listing);
 
-        // change the title of the toolbar and allow back navigation
+        // Change the title of the toolbar and allow back navigation
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("Create Listing");
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
+        // Initialize UI components
         btn_create = findViewById(R.id.btn_create);
         btn_camera = findViewById(R.id.btn_camera);
         btn_gallery = findViewById(R.id.btn_gallery);
@@ -75,10 +76,12 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
         container = findViewById(R.id.container);
         progressbar = findViewById(R.id.progressbar);
 
+        // Set click listeners
         btn_create.setOnClickListener(this);
         btn_camera.setOnClickListener(this);
         btn_gallery.setOnClickListener(this);
 
+        // Set text change listeners for input fields
         TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -96,11 +99,13 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
         et_phone.addTextChangedListener(textWatcher);
         et_desc.addTextChangedListener(textWatcher);
 
+        // Set focus change listeners for input fields
         et_name.setOnFocusChangeListener(this);
         et_price.setOnFocusChangeListener(this);
         et_phone.setOnFocusChangeListener(this);
         et_desc.setOnFocusChangeListener(this);
 
+        // Retrieve image URI if passed from the previous activity
         String imageUriString = getIntent().getStringExtra("imageUriString");
         if (imageUriString != null) {
             Log.d("mlog", "detected");
@@ -109,34 +114,37 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
             setImgUri(uri);
         }
 
-
+        // Handle the state of the create button
         handleCreateButton();
         setupGalleryLauncher();
     }
 
+    // Setup gallery launcher for picking images
     public void setupGalleryLauncher() {
-        galleryLauncher =
-                registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
-                    if (uri != null) {
-                        Log.d("PhotoPicker", "Selected URI: " + uri);
-                        setImgUri(uri);
-                    } else {
-                        Log.d("PhotoPicker", "No media selected");
-                    }
-                });
+        galleryLauncher = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+            if (uri != null) {
+                Log.d("PhotoPicker", "Selected URI: " + uri);
+                setImgUri(uri);
+            } else {
+                Log.d("PhotoPicker", "No media selected");
+            }
+        });
     }
 
+    // Launch the gallery for picking images
     public void launchGallery() {
         galleryLauncher.launch(new PickVisualMediaRequest.Builder()
                 .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
                 .build());
     }
 
+    // Set the image URI and update the UI feedback
     public void setImgUri(Uri uri) {
         imgUri = uri;
         photoUploadedUIFeedback();
     }
 
+    // Upload the item details to Firestore
     private void uploadItem(Map<String, Object> item) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("items").add(item).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -148,8 +156,8 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
         });
     }
 
+    // Create a new listing
     public void createListing() {
-
         loadingStateUIFeedback();
 
         String name = et_name.getText().toString().trim();
@@ -165,8 +173,7 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        if(imgUri != null) {
-
+        if (imgUri != null) {
             StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("images");
             StorageReference imgRef = storageRef.child(String.valueOf(System.currentTimeMillis()));
 
@@ -182,46 +189,19 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
                     });
                 }
             });
-        }
-
-        else {
+        } else {
             item.put("imgUrl", "");
             uploadItem(item);
         }
-
-
-
-//        FirebaseFirestore db = FirebaseFirestore.getInstance();
-//        db.collection("items")
-//                .add(item)
-//                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-//                    @Override
-//                    public void onSuccess(DocumentReference documentReference) {
-//                        String id = documentReference.getId();
-//                        if(imgUri != null) {
-//
-//                            // upload image to firebase storage
-//                            FirebaseStorage storage = FirebaseStorage.getInstance();
-//                            StorageReference storageRef = storage.getReference().child("images/" + id);
-//                            storageRef.putFile(imgUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-//                                @Override
-//                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-//                                    Intent intent = new Intent(CreateListingActivity.this, MainActivity.class);
-//                                    startActivity(intent);
-//                                }
-//                            });
-//                        }
-//
-//                    }
-//                });
     }
 
+    // Provide feedback for loading state
     private void loadingStateUIFeedback() {
         container.setAlpha(0.25F);
         progressbar.setVisibility(View.VISIBLE);
     }
 
-
+    // Handle click events
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.btn_create) {
@@ -237,32 +217,32 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
         }
     }
 
+    // Launch the camera activity
     public void launchCamera() {
         Intent intent = new Intent(this, CameraActivity.class);
         startActivity(intent);
     }
 
+    // Enable or disable the create button based on input field states
     public void handleCreateButton() {
         String text1 = et_name.getText().toString().trim();
         String text2 = et_phone.getText().toString().trim();
         String text3 = et_desc.getText().toString().trim();
         String text4 = et_price.getText().toString().trim();
 
-
         boolean enabled = !text1.isEmpty() && !text2.isEmpty() && !text3.isEmpty() && !text4.isEmpty();
         btn_create.setEnabled(enabled);
 
-        if(enabled) {
+        if (enabled) {
             btn_create.getBackground().setColorFilter(null);
-        }
-        else {
+        } else {
             btn_create.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_IN);
         }
     }
 
+    // Handle focus change events
     @Override
     public void onFocusChange(View view, boolean hasFocus) {
-
         TextInputEditText et = (TextInputEditText) view;
 
         if (!hasFocus && et.getText().toString().isEmpty()) {
@@ -270,6 +250,7 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
         }
     }
 
+    // Provide feedback when a photo is uploaded
     public void photoUploadedUIFeedback() {
         tv_upload_photo.setTextColor(getResources().getColor(R.color.green));
         tv_upload_photo.setText("Photo uploaded!");
@@ -277,6 +258,7 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
         btn_camera.setVisibility(View.INVISIBLE);
     }
 
+    // Save the state of input fields when the activity stops
     @Override
     protected void onStop() {
         super.onStop();
@@ -295,6 +277,7 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
         editor.apply();
     }
 
+    // Restore the state of input fields when the activity resumes
     @Override
     protected void onResume() {
         super.onResume();
