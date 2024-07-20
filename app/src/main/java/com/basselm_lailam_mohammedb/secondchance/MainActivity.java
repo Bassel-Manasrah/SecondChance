@@ -57,51 +57,50 @@ public class MainActivity extends AppCompatActivity {
 
         ProcessLifecycleOwner.get().getLifecycle().addObserver(new AppLifecycleObserver(this));
 
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+        registerReceiver(new NetworkChangeReceiver(), filter);
 
-//        IntentFilter filter = new IntentFilter();
-//        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
-//        registerReceiver(new NetworkChangeReceiver(), filter);
-//
-//        // load settings
-//        loadSettings();
-//        Log.d("mlog", "minPrice: " + setting_minPrice);
-//        Log.d("mlog", "maxPrice: " + setting_maxPrice);
-//        Log.d("mlog", "onlyWithImage: " + setting_onlyWithImage);
-//
-//        // change the title of the toolbar
-//        if (getSupportActionBar() != null) {
-//            getSupportActionBar().setTitle("Home");
-//        }
-//
-//        itemList = new ArrayList<>();
-//        ItemAdapter itemAdapter = new ItemAdapter(itemList, this);
-//
-//        RecyclerView recyclerView = findViewById(R.id.rv_items);
-//        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-//        recyclerView.setAdapter(itemAdapter);
-//
-//        FirebaseFirestore db = FirebaseFirestore.getInstance();
-//        db.collection("items").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//                if (task.isSuccessful()) {
-//                    for (QueryDocumentSnapshot document : task.getResult()) {
-////                        String id = document.getId();
-////                        String name = document.getString("name");
-////                        Double price = document.getDouble("price");
-////                        FirebaseStorage storage = FirebaseStorage.getInstance();
-////                        ItemModel item = new ItemModel(id, name, price);
-//                        ItemModel item = firebaseDocumentToItemModel(document);
-//
-//                        if(isMatchingItem(item))
-//                            itemList.add(item);
-//                    }
-//                    itemAdapter.notifyDataSetChanged();
-//                } else {
-//                    Log.w("mlog", "Error getting documents.", task.getException());
-//                }
-//            }
-//        });
+        // load settings
+        loadSettings();
+        Log.d("mlog", "minPrice: " + setting_minPrice);
+        Log.d("mlog", "maxPrice: " + setting_maxPrice);
+        Log.d("mlog", "onlyWithImage: " + setting_onlyWithImage);
+
+        // change the title of the toolbar
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Home");
+        }
+
+        itemList = new ArrayList<>();
+        ItemAdapter itemAdapter = new ItemAdapter(itemList, this);
+
+        RecyclerView recyclerView = findViewById(R.id.rv_items);
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        recyclerView.setAdapter(itemAdapter);
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("items").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+//                        String id = document.getId();
+//                        String name = document.getString("name");
+//                        Double price = document.getDouble("price");
+//                        FirebaseStorage storage = FirebaseStorage.getInstance();
+//                        ItemModel item = new ItemModel(id, name, price);
+                        ItemModel item = firebaseDocumentToItemModel(document);
+
+                        if(isMatchingItem(item))
+                            itemList.add(item);
+                    }
+                    itemAdapter.notifyDataSetChanged();
+                } else {
+                    Log.w("mlog", "Error getting documents.", task.getException());
+                }
+            }
+        });
 
     }
 

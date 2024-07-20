@@ -25,7 +25,7 @@ public class AppLifecycleObserver implements DefaultLifecycleObserver {
         Intent intent = new Intent(context, AlarmReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 context, 0, intent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-        long triggerTime = System.currentTimeMillis() + 10 * 1000;
+        long triggerTime = System.currentTimeMillis() + 2 * 24 * 60 * 60 * 1000;
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent);
     }
 }
