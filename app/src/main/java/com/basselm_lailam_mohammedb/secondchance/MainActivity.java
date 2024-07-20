@@ -31,6 +31,7 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private int setting_minPrice, setting_maxPrice;
     private boolean setting_onlyWithImage;
     private RecyclerView recyclerView;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +79,15 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.rv_items);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadSettings();
+                fetchItems();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
 
         fetchItems();
 
