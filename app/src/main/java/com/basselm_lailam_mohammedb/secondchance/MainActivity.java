@@ -1,10 +1,16 @@
 package com.basselm_lailam_mohammedb.secondchance;
 
+import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -15,9 +21,11 @@ import android.widget.ImageView;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -47,50 +55,53 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
-        registerReceiver(new NetworkChangeReceiver(), filter);
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(new AppLifecycleObserver(this));
 
-        // load settings
-        loadSettings();
-        Log.d("mlog", "minPrice: " + setting_minPrice);
-        Log.d("mlog", "maxPrice: " + setting_maxPrice);
-        Log.d("mlog", "onlyWithImage: " + setting_onlyWithImage);
 
-        // change the title of the toolbar
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Home");
-        }
-
-        itemList = new ArrayList<>();
-        ItemAdapter itemAdapter = new ItemAdapter(itemList, this);
-
-        RecyclerView recyclerView = findViewById(R.id.rv_items);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        recyclerView.setAdapter(itemAdapter);
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("items").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-//                        String id = document.getId();
-//                        String name = document.getString("name");
-//                        Double price = document.getDouble("price");
-//                        FirebaseStorage storage = FirebaseStorage.getInstance();
-//                        ItemModel item = new ItemModel(id, name, price);
-                        ItemModel item = firebaseDocumentToItemModel(document);
-
-                        if(isMatchingItem(item))
-                            itemList.add(item);
-                    }
-                    itemAdapter.notifyDataSetChanged();
-                } else {
-                    Log.w("mlog", "Error getting documents.", task.getException());
-                }
-            }
-        });
+//        IntentFilter filter = new IntentFilter();
+//        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+//        registerReceiver(new NetworkChangeReceiver(), filter);
+//
+//        // load settings
+//        loadSettings();
+//        Log.d("mlog", "minPrice: " + setting_minPrice);
+//        Log.d("mlog", "maxPrice: " + setting_maxPrice);
+//        Log.d("mlog", "onlyWithImage: " + setting_onlyWithImage);
+//
+//        // change the title of the toolbar
+//        if (getSupportActionBar() != null) {
+//            getSupportActionBar().setTitle("Home");
+//        }
+//
+//        itemList = new ArrayList<>();
+//        ItemAdapter itemAdapter = new ItemAdapter(itemList, this);
+//
+//        RecyclerView recyclerView = findViewById(R.id.rv_items);
+//        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+//        recyclerView.setAdapter(itemAdapter);
+//
+//        FirebaseFirestore db = FirebaseFirestore.getInstance();
+//        db.collection("items").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                if (task.isSuccessful()) {
+//                    for (QueryDocumentSnapshot document : task.getResult()) {
+////                        String id = document.getId();
+////                        String name = document.getString("name");
+////                        Double price = document.getDouble("price");
+////                        FirebaseStorage storage = FirebaseStorage.getInstance();
+////                        ItemModel item = new ItemModel(id, name, price);
+//                        ItemModel item = firebaseDocumentToItemModel(document);
+//
+//                        if(isMatchingItem(item))
+//                            itemList.add(item);
+//                    }
+//                    itemAdapter.notifyDataSetChanged();
+//                } else {
+//                    Log.w("mlog", "Error getting documents.", task.getException());
+//                }
+//            }
+//        });
 
     }
 
@@ -143,5 +154,12 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
 
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        Log.d("mlog", "onStop: ");
     }
 }
