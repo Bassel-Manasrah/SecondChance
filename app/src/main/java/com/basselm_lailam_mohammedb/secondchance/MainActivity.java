@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView iv;
     private int setting_minPrice, setting_maxPrice;
     private boolean setting_onlyWithImage;
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,11 +75,17 @@ public class MainActivity extends AppCompatActivity {
             getSupportActionBar().setTitle("Home");
         }
 
+        recyclerView = findViewById(R.id.rv_items);
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+
+        fetchItems();
+
+    }
+
+    private void fetchItems() {
+
         itemList = new ArrayList<>();
         ItemAdapter itemAdapter = new ItemAdapter(itemList, this);
-
-        RecyclerView recyclerView = findViewById(R.id.rv_items);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         recyclerView.setAdapter(itemAdapter);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -87,11 +94,6 @@ public class MainActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
-//                        String id = document.getId();
-//                        String name = document.getString("name");
-//                        Double price = document.getDouble("price");
-//                        FirebaseStorage storage = FirebaseStorage.getInstance();
-//                        ItemModel item = new ItemModel(id, name, price);
                         ItemModel item = firebaseDocumentToItemModel(document);
 
                         if(isMatchingItem(item))
@@ -103,7 +105,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
 
     private ItemModel firebaseDocumentToItemModel(QueryDocumentSnapshot document) {
@@ -163,6 +164,13 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadSettings();
+        fetchItems();
     }
 
     private void showAboutDialog() {
