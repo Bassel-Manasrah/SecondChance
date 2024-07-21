@@ -23,7 +23,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.basselm_lailam_mohammedb.secondchance.observers.AppLifecycleObserver;
-import com.basselm_lailam_mohammedb.secondchance.broadcastReceivers.CreateListingActivity;
 import com.basselm_lailam_mohammedb.secondchance.adapters.ItemAdapter;
 import com.basselm_lailam_mohammedb.secondchance.models.ItemModel;
 import com.basselm_lailam_mohammedb.secondchance.R;

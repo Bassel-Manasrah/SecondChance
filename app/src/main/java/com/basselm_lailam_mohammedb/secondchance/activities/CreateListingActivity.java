@@ -1,4 +1,4 @@
-package com.basselm_lailam_mohammedb.secondchance.broadcastReceivers;
+package com.basselm_lailam_mohammedb.secondchance.activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -23,8 +23,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.basselm_lailam_mohammedb.secondchance.R;
-import com.basselm_lailam_mohammedb.secondchance.activities.CameraActivity;
-import com.basselm_lailam_mohammedb.secondchance.activities.MainActivity;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentReference;

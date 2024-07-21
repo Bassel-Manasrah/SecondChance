@@ -25,6 +25,9 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
     // This method is called when the network connectivity changes
     @Override
     public void onReceive(Context context, Intent intent) {
+
+        if(isInitialStickyBroadcast()) return;
+
         if (isConnected(context)) {
             // Display a success toast if the device is connected to the internet
             Toasty.success(context, "You are connected to the internet", Toast.LENGTH_SHORT, true).show();

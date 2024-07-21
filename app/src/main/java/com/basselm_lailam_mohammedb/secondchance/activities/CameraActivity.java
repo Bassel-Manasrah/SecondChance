@@ -21,7 +21,6 @@ import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.basselm_lailam_mohammedb.secondchance.broadcastReceivers.CreateListingActivity;
 import com.basselm_lailam_mohammedb.secondchance.R;
 
 import java.io.File;
