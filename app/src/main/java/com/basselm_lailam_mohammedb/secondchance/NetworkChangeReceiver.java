@@ -27,10 +27,10 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (isConnected(context)) {
             // Display a success toast if the device is connected to the internet
-            Toasty.success(context, "You are currently online", Toast.LENGTH_SHORT, true).show();
+            Toasty.success(context, "You are connected to the internet", Toast.LENGTH_SHORT, true).show();
         } else {
             // Display an error toast if the device is not connected to the internet
-            Toasty.error(context, "You are currently offline", Toast.LENGTH_SHORT, true).show();
+            Toasty.error(context, "You are not connected to the internet", Toast.LENGTH_SHORT, true).show();
         }
     }
 

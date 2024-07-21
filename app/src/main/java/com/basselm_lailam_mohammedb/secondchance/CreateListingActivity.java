@@ -108,9 +108,7 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
         // Retrieve image URI if passed from the previous activity
         String imageUriString = getIntent().getStringExtra("imageUriString");
         if (imageUriString != null) {
-            Log.d("mlog", "detected");
             Uri uri = Uri.parse(imageUriString);
-            Log.d("mlog", uri.getPath());
             setImgUri(uri);
         }
 
@@ -150,6 +148,7 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
         db.collection("items").add(item).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
             public void onSuccess(DocumentReference documentReference) {
+                clearSharedPreferences();
                 Intent intent = new Intent(CreateListingActivity.this, MainActivity.class);
                 startActivity(intent);
             }
@@ -258,11 +257,16 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
         btn_camera.setVisibility(View.INVISIBLE);
     }
 
-    // Save the state of input fields when the activity stops
-    @Override
-    protected void onStop() {
-        super.onStop();
+    // clear everything saved in shared preferences
+    public void clearSharedPreferences() {
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.apply();
+    }
 
+    // save user input to shared preferences
+    public void saveToSharedPreferences() {
         String name = et_name.getText().toString().trim();
         String phone = et_phone.getText().toString().trim();
         String desc = et_desc.getText().toString().trim();
@@ -275,6 +279,21 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
         editor.putString("desc", desc);
         editor.putString("price", price);
         editor.apply();
+    }
+
+
+    // Save the state of input fields when the activity stops
+    @Override
+    protected void onStop() {
+        super.onStop();
+        saveToSharedPreferences();
+    }
+
+    // Save the state of input fields when the activity stops
+    @Override
+    protected void onPause() {
+        super.onStop();
+        saveToSharedPreferences();
     }
 
     // Restore the state of input fields when the activity resumes
