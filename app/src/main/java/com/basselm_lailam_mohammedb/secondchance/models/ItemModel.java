@@ -1,4 +1,4 @@
-package com.basselm_lailam_mohammedb.secondchance;
+package com.basselm_lailam_mohammedb.secondchance.models;
 
 public class ItemModel {
     private String id, name, imgUrl;

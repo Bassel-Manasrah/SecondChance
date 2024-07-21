@@ -1,50 +1,41 @@
-package com.basselm_lailam_mohammedb.secondchance;
+package com.basselm_lailam_mohammedb.secondchance.activities;
 
-import android.app.AlarmManager;
 import android.app.AlertDialog;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.ImageView;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.bumptech.glide.Glide;
+import com.basselm_lailam_mohammedb.secondchance.observers.AppLifecycleObserver;
+import com.basselm_lailam_mohammedb.secondchance.broadcastReceivers.CreateListingActivity;
+import com.basselm_lailam_mohammedb.secondchance.adapters.ItemAdapter;
+import com.basselm_lailam_mohammedb.secondchance.models.ItemModel;
+import com.basselm_lailam_mohammedb.secondchance.R;
+import com.basselm_lailam_mohammedb.secondchance.broadcastReceivers.NetworkChangeReceiver;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -100,29 +91,46 @@ public class MainActivity extends AppCompatActivity {
         fetchItems();
     }
 
-    // Method to fetch items from Firebase
     private void fetchItems() {
         itemList = new ArrayList<>();
         ItemAdapter itemAdapter = new ItemAdapter(itemList, this);
         recyclerView.setAdapter(itemAdapter);
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("items").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        ItemModel item = firebaseDocumentToItemModel(document);
+        // Handler to post updates to the main thread
+        Handler mainHandler = new Handler(Looper.getMainLooper());
 
-                        if (isMatchingItem(item))
-                            itemList.add(item);
+        // Create and start a new thread for fetching items
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                db.collection("items").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            final List<ItemModel> tempList = new ArrayList<>();
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                ItemModel item = firebaseDocumentToItemModel(document);
+                                if (isMatchingItem(item)) {
+                                    tempList.add(item);
+                                }
+                            }
+                            // Update the itemList and notify the adapter on the main thread
+                            mainHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    itemList.clear();
+                                    itemList.addAll(tempList);
+                                    itemAdapter.notifyDataSetChanged();
+                                }
+                            });
+                        } else {
+                            Log.w("mlog", "Error getting documents.", task.getException());
+                        }
                     }
-                    itemAdapter.notifyDataSetChanged();
-                } else {
-                    Log.w("mlog", "Error getting documents.", task.getException());
-                }
+                });
             }
-        });
+        }).start();
     }
 
     // Convert Firebase document to ItemModel object

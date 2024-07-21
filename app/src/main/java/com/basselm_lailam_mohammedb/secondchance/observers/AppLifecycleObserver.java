@@ -1,4 +1,4 @@
-package com.basselm_lailam_mohammedb.secondchance;
+package com.basselm_lailam_mohammedb.secondchance.observers;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -8,6 +8,8 @@ import android.content.Intent;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
+
+import com.basselm_lailam_mohammedb.secondchance.broadcastReceivers.AlarmReceiver;
 
 public class AppLifecycleObserver implements DefaultLifecycleObserver {
 

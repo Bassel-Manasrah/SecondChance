@@ -1,4 +1,4 @@
-package com.basselm_lailam_mohammedb.secondchance;
+package com.basselm_lailam_mohammedb.secondchance.broadcastReceivers;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,29 +8,23 @@ import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 
-import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.android.gms.auth.api.signin.internal.Storage;
-import com.google.android.gms.tasks.OnFailureListener;
+import com.basselm_lailam_mohammedb.secondchance.R;
+import com.basselm_lailam_mohammedb.secondchance.activities.CameraActivity;
+import com.basselm_lailam_mohammedb.secondchance.activities.MainActivity;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentReference;

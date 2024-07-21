@@ -1,4 +1,4 @@
-package com.basselm_lailam_mohammedb.secondchance;
+package com.basselm_lailam_mohammedb.secondchance.broadcastReceivers;
 
 import static androidx.core.content.ContextCompat.getSystemService;
 
