@@ -8,8 +8,10 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -29,6 +31,8 @@ public class SettingsActivity extends AppCompatActivity {
     private EditText edt_max;
     // Switch for toggling the "only with image" option
     private Switch switch_only_with_image;
+    // TextView for error
+    private TextView tv_error;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,13 +45,44 @@ public class SettingsActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        // Initialize views
+        // Initialize UI components
+        tv_error = findViewById(R.id.tv_error);
         edt_min = findViewById(R.id.edt_min);
         edt_max = findViewById(R.id.edt_max);
         switch_only_with_image = findViewById(R.id.switch_only_with_image);
 
+        initEditText(edt_max);
+        initEditText(edt_min);
+
         // Load settings from shared preferences
         loadSettings();
+    }
+
+    private void initEditText(EditText edt) {
+        edt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                tv_error.setVisibility(isInputValid() ? View.INVISIBLE : View.VISIBLE);
+            }
+        });
+    }
+
+    private boolean isInputValid() {
+        // Get the text from the EditTexts
+        String edt_min_string = edt_min.getText().toString();
+        String edt_max_string = edt_max.getText().toString();
+
+        // Parse the text to integers with default values if empty
+        int minPrice = edt_min_string.isEmpty() ? 0 : Integer.valueOf(edt_min_string);
+        int maxPrice = edt_max_string.isEmpty() ? 999999999 : Integer.valueOf(edt_max_string);
+
+        return minPrice <= maxPrice;
     }
 
     // Method to extract a number from an Editable object
