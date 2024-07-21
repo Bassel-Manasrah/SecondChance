@@ -44,6 +44,7 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
     Uri imgUri;
     TextView tv_upload_photo;
     ActivityResultLauncher<PickVisualMediaRequest> galleryLauncher;
+    private boolean itemUploaded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,7 +141,7 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
         db.collection("items").add(item).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
             public void onSuccess(DocumentReference documentReference) {
-                clearSharedPreferences();
+                itemUploaded = true;
                 Intent intent = new Intent(CreateListingActivity.this, MainActivity.class);
                 startActivity(intent);
             }
@@ -249,14 +250,6 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
         btn_camera.setVisibility(View.INVISIBLE);
     }
 
-    // clear everything saved in shared preferences
-    public void clearSharedPreferences() {
-        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.clear();
-        editor.apply();
-    }
-
     // save user input to shared preferences
     public void saveToSharedPreferences() {
         String name = et_name.getText().toString().trim();
@@ -278,14 +271,16 @@ public class CreateListingActivity extends AppCompatActivity implements View.OnC
     @Override
     protected void onStop() {
         super.onStop();
-        saveToSharedPreferences();
+        if(!itemUploaded)
+            saveToSharedPreferences();
     }
 
     // Save the state of input fields when the activity stops
     @Override
     protected void onPause() {
         super.onStop();
-        saveToSharedPreferences();
+        if(!itemUploaded)
+            saveToSharedPreferences();
     }
 
     // Restore the state of input fields when the activity resumes
